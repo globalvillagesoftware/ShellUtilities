@@ -1,0 +1,88 @@
+# The version of python that we want
+sv='3.8.3'
+
+ret = 0
+compilerType=1
+declare -a optionNames=('gdbm' 'sqlite' 'lzma' 'bz2' 'readine' 'curses' 'openssl' 'tcl/tk')
+declare -a selectedOptionalModules
+
+setCompilerType() {
+    if [[ -e $1]]; then
+        compilerType = 0
+    else;
+        compilerType = 1
+    fi
+}
+
+setOptions() {
+    ret = 0
+    shift  # Get rid of parameter type
+    while (( "$#" )); do
+        if [[ '$1' in optionNames]]
+    done
+}
+
+# Get the command line arguments
+
+if [[ -e $1 ]]; then
+    if [[ $1 == '-p']]; then
+        setCompilerType(0)
+        shift
+        setOptions()
+    elif [[ $1 == "-o"]]; then
+        setOptions()
+        setCompilerType("$1")
+    else:
+        echo "$1 is an unrecognized argument"
+        ret = 2
+        exit ret
+    fi
+fi
+
+# Get the prerequisites for a successful Python complile
+sudo apt-get -y -qq update
+sudo apt-get -y -qq upgrade
+sudo apt-get -y -qq autoremove
+
+sudo apt-get install -y checkinstall
+sudo apt-get install -y libreadline-gplv2-dev
+sudo apt-get install -y libncursesw5-dev
+sudo apt-get install -y libssl-dev
+sudo apt-get install -y liblzma-dev
+sudo apt-get install -y lzma
+sudo apt-get install -y libffi-dev
+sudo apt-get install -y libsqlite3-dev
+sudo apt-get install -y tk-dev
+sudo apt-get install -y libgdbm-dev
+sudo apt-get install -y libocsigenserver-ocaml-dev
+sudo apt-get install -y libopenipmi-dev
+sudo apt-get install -y freebsd-glue
+sudo apt-get install -y libbz2-dev
+# Make a place to work
+mkdir ~/Downloads/python
+cd ~/Downloads/python
+if [ -e ~/Downloads/python/Python-$sv]; then
+    rm -R Python-$sv  # Get rid of old copy of Python
+fi
+
+#Get the Python source
+wget https://www.python.org/ftp/python/$sv/Python-$sv.tgz
+
+# Extract the source code from the tar file that was downloaded
+tar xzf Python-$sv.tgz
+
+# the next steps are performed from wthin the source code
+cd ./Python-$sv
+
+# Modify setup.py to issue some diagnostic information
+
+# Make sure that we have all the needed pieces and define the attributes that
+# we want for Python. This compile will build a development version of Python.
+./configure
+
+# Try building Python
+make
+
+echo "Now make sure that everything built. If not, you will need to find out what"
+echo "the missing prerequisites are and install them."
+exit ret
