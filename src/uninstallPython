@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#
+# This uninstalls a version of Python that was installed via make altinstall
+# It takes one argument, that is the minor version of Python that is being
+# uninstalled.

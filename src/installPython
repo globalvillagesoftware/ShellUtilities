@@ -6,7 +6,8 @@ compilerType=1
 declare -a optionNames=('gdbm' 'sqlite' 'lzma' 'bz2' 'readine' 'curses' 'openssl' 'tcl/tk')
 declare -a selectedOptionalModules
 
-setCompilerType() {
+setCompilerType()
+{
     if [[ -e $1]]; then
         compilerType = 0
     else;
@@ -14,11 +15,14 @@ setCompilerType() {
     fi
 }
 
-setOptions() {
+setOptions()
+{
     ret = 0
     shift  # Get rid of parameter type
     while (( "$#" )); do
-        if [[ '$1' in optionNames]]
+        if [[ '$1' in optionNames]]; then
+            pass
+        fi
     done
 }
 
@@ -28,10 +32,10 @@ if [[ -e $1 ]]; then
     if [[ $1 == '-p']]; then
         setCompilerType(0)
         shift
-        setOptions()
+        setOptions
     elif [[ $1 == "-o"]]; then
-        setOptions()
-        setCompilerType("$1")
+        setOptions
+        setCompilerType "$1"
     else:
         echo "$1 is an unrecognized argument"
         ret = 2

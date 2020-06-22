@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# This script creates a new virtual environment. It takes two arguments as
+# follows:
+# 1. Arhument 1 is the distinguishing name of this environment. If no argument
+#    is supplied and no virtual environment exists with the Python version
+#    number as its distinguishing name, a virtual environment is created using
+#    the currently accessible Python version number as the distinguishing name.
+# 2. The second argument is the name of the organization that the operator of
+#    the computer belongs to. If it is not supplied, it defaults to the name of
+#    the computer.
+# The script assumes that virtual environment paths have the following
+# structure:
+# $HOME/venvs/Organization Name/Distinguishing-Name/bin
+#
+# If your virtual environment structure already exists and is different you
+# can use symbolic links to emulate the structure created by this script. The
+# symbolic links will create a directory structure that conforms to the Global
+# Village standards but which allows you to keep your existing structure. This
+# script uses the following arguments to create this structure.
+#
+# The shell command "source gvActivate" will activate your requested virtual
+# environment. It is a generic script and will work with any virtual
+# environment that follows the Global Village conventions.

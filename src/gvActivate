@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# This module will activate the Python virtual environment in a Ubuntu shell
+# for the Global Village using the version of Python selected by the user. If
+# no argument is supplied it defaults to the current version for the Global
+# Village.
+pyver=""
+if [[ $# -eq 1 ]] ; then  pyver="$1";
+elif [[ $# -gt 1 ]]; then
+    echo "$# arguments are an invalid invocation of gvActivate" ;
+else
+    pyver="3.8.3"
+fi
+if [[ $# -le 1 ]]; then
+    venv="$HOME/venvs/GlobalVillage/$pyver/bin"
+    echo "$venv"
+    if [[ -d "$venv" ]] ; then
+      olddir=$(pwd)  # The virtual environment exists
+        cd "$venv"
+       source activate
+       cd "$olddir"
+    else     echo "$No virtual environment $venv was not found" ;
+    fi
+fi

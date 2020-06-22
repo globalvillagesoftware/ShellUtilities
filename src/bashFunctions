@@ -1,0 +1,186 @@
+# This file contains various helpful functions that are used throughout the
+# bash scripts supplied by the Global Village
+
+delFiles() {
+    # This function is used to remove files and directories.
+    #
+    # -p is the location of the files and directories that are
+    # to be deleted. It is a keyword argument called -p for prefix. It is
+    # optional and defaults to nothing for safety. If it is not specified,
+    #.nothing will be done.
+    #
+    # -s is a flag that specifies whether the removal commands
+    # should be run using sudo. If it is present, sudo is used otherwise it is
+    #  used.not
+    #
+    # -v is a verbosity indicator that takes an integer as its
+    # value. Its name is -v. It is optional and defaults to 0 which suppresses
+    # most output from the commands being run. Valid values range from 0-3
+    # where 3 generates a lot of debugging output.
+    #
+    # -R is a flag indicatig whether the commands should
+    # operate recursively on sub-directories of any directories specified on
+    # the command line. It is optional and defaults to no recursion if not
+    # specified.
+    #
+    # -V is a flag asking that the version of this function be
+    # reported on stdout. It is optional, defaults to do nothing. When this
+    # flag is specified, all other flags are ignored.
+    #
+    # The only positional arguments are essentially a list of globs that define
+    # the files and directories to be removed. Each array entry is checked for
+    # existence before trying to remove it so it gives no spurious and
+    # unnecessary diagnostic messages. The removal is done recursively, if
+    # specified, so any sub-directories will be removed. An empty list is not
+    # an error, simply, nothing will happen.
+    #
+    # This function should be invoked separately for each directory prefix
+    # where you want to delete something.
+
+    if [[ $# -eq 0 ]]; then
+        echo "delFiles - Invalid invocation. Need at least one file or directory to delete"
+        return 1
+    fi
+    # Define default values for the local variables
+    local prefix=""
+    local sudo=false
+    local verbosity=0
+    local recursion=false
+    local version="0.1.0"
+    local ret=0
+    local kaym="delFiles - Keyword is ${keyword}, value is $OPTARG"
+    local kvm="delFiles - Keyword is ${keyword}"
+    # Parse the command arguments
+    while getopts :p:v:VRs keyword
+    do
+        case "$keyword" in
+            V)
+            echo "Version of delFiles is $version"
+            return 0
+            ;;
+            v)
+            if [[ $OPTARG -ge "0" and $OPTARG --le "3" ]]; then
+                verbosity=$OPTARG
+            else
+                echo "delFiles - Invalid value for verbosity keyword: $OPTARG"
+                ret=1
+            fi
+            ;;
+            p)
+            if [[ -e $OPTARG ]]; then
+                prefix=$OPTARG
+                if [[ $verbosity -eq 3 ]]; then
+                   echo "$kavm"
+                fi
+            else
+                echo "delFiles - Invalid value for $OPTARG. Does not exist."
+                ret=1
+            fi
+            ;;
+            s)
+            sudo=true
+            if [[ $verbosity -eq 3 ]]; then
+                echo "$kvm"
+            fi
+            ;;
+            R)
+            recursion=true
+            if [[ $verbosity -eq 3 ]]; then
+                echo "$kvm"
+            fi
+            ;;
+            *)
+            echo "delFiles - Not a supported keyword ${keyword}"
+            ret=1
+            ;;
+        esac
+    done
+    if [[ $ret -gt 0 ]]; then
+        return $ret  # errors detected, do nothing
+    fi
+    shift "$(($OPTIND -1))"  # Allow access to the positional arguments
+    for f in "$@" 
+    do
+        if [[ $verbosity -eq 3 ]]; then
+            echo "Going to get rid of $f"
+        fi
+    done
+    return $ret
+}
+
+
+testCommand() {
+    # The first keyword argument -c is the command to be tested.
+    # The second keyword argument -f indicates that failure of the command
+    # really represents success of the test. If it is not supplied, return code
+    # handling proceeds normally.
+    # The rest of the positional arguments represent regular expressions that
+    # should be present in $output if the command is to be considered as
+    # working.
+    local regex=()
+    local cmd= ""
+    local failure=false
+    local ret=0
+    local ret2=0
+    local version="0.1.0"
+    while getopts :c:f keyword
+    do
+        case "$keyword" in
+        c)
+        cmd="$OPTARG"
+        ;;
+        f)
+        failure="reverse"
+        ;;
+        *)
+        echo "testCommand - Invalid keyword argument $keyword"
+        ret=1
+        ;;
+    done
+    shift "$(($OPTIND -1))"  # Allow access to the positional arguments
+    for f in "$@" 
+    do
+        regex+="$f" # Add the regular expression to the collection
+    done
+    output=${"$cmd"}  # Run the command, capturing stdout
+    ret=$?
+    if [[ "$failure" == "reverse" ]]; then  # The return code needs to be
+                                            # inverted to show the result of
+                                            # the test.
+        if [[ $ret -eq 0 ]]; then
+            ret=2
+        fi
+    fi
+    if [[ $ret2 -ne 0 ]]; then
+        echo "test of command $1 did not succeed"
+        if [[ ret -eq 0 ]]; then
+            ret=$ret2
+        fi
+    fi
+    # Check that the regular expressions are satified in the output from
+    # running the command.
+    for re in "$regex[@]"
+    do
+        if [[ ! re =~ output ]]; then
+            echo "testCommand- Regular expression $re not matched in command $cmd output"
+            if $ret -eq 0 ]]; then
+                $ret=2
+            fi
+    done
+    return $ret
+}
+
+testVersion() {
+    # The single argument contains the flags to be used in this test
+    # This function can be used globally because almost all scripts have a
+    # version
+    local output=""
+    local ret=0
+    output=${delFiles "$1"}
+    ret=$?
+    if [[ ret -ne 0 || ! output = "Version of delFiles is .*" ]] ; then
+        echo "Version test with $1 flags failed"
+        ret=1
+    fi
+    return $ret
+}

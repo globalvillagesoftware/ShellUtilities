@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# This script creates the global environmnt for a software development
+# environment. The nature of the environment depends on whether this machine is
+# going to be used as a single user machine or as a multi-user machine. On a
+# single-user machine, everything is normally stored in the user's home
+# directory and on a multi-user machine it is stored in the root directory in
+# a sub-directorry for each organization using the computer.
+#
+# On a single user computer, the following structure is used:
+# * /$HOME/bin is used for executable programs
+# * /$HOME/.local/lib is used for shared library objects
+# * Python virtual environmnts are stored in /$HOME/venvs
+# * VirtualBox virtual machines are stored in /$HOME/vms
+#
+# If a single-user machine is to share some environment with other users in a
+# development environment, the shared components will be stored on a NFS based
+# server and the directories containing the shared components will be mounted
+# locally when the local machine is booted. The shared directories will be
+# called:
+# * bin for executable programs.
+# * lib for dynamic library objects
+# * venvs for Python virtual environments
+# * vms for VirtualBox virtual machines.
+#
+# The shared environments are read-only. If writing to any of these directories
+# is needed, user specific local directories will be used and the shared data
+# will be logically merged with the local directories. This capability is
+# particularly important for virtual machines where the VM image may be shared
+# but the VM disk is placed locally so that it can be written to without
+# disturbing other users.
